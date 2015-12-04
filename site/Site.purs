@@ -1,5 +1,6 @@
 module Site where
 
+import Prelude
 import Control.Monad.Eff
 import CSS.Animation
 import CSS.Background
@@ -11,7 +12,7 @@ import CSS.Font
 import CSS.FontFace
 import CSS.Geometry
 import CSS.Gradient
-import qualified CSS.Media as M
+import CSS.Media            as M
 import CSS.Pseudo
 import CSS.Render
 import CSS.Selector
@@ -25,7 +26,7 @@ import CSS.Transition
 import Data.Maybe
 import Data.Tuple.Nested
 import DOM
-import qualified Data.Array.NonEmpty as NEL
+import Data.NonEmpty        as NEL
 
 foreign import addStyleSheet :: forall eff. String -> Eff (dom::DOM | eff) Unit
 foreign import titleWidth    :: forall eff. Eff (dom::DOM | eff) Number

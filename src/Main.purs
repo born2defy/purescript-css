@@ -2,25 +2,6 @@ module Main where
 
 import    Prelude               hiding (top, bottom)
 import    Control.Monad.Eff
-import    CSS.Animation
-import    CSS.Background
-import    CSS.Border
-import    CSS.Color
-import    CSS.Display
-import    CSS.Elements
-import    CSS.Font
-import    CSS.FontFace
-import    CSS.Geometry
-import    CSS.Gradient
-import    CSS.Pseudo
-import    CSS.Selector
-import    CSS.Size
-import    CSS.String
-import    CSS.Stylesheet
-import    CSS.Text
-import    CSS.Time
-import    CSS.Transform
-import    CSS.Transition
 import    CSS.Media       as M
 import    Data.Maybe
 import    Data.Tuple.Nested
@@ -28,7 +9,7 @@ import    DOM
 import    Data.NonEmpty   as NEL
 
 
-import    CSS.Compile     (renderAndInsertStyle)
+import    CSS.CSSInLine
 
 
 main :: forall eff. Eff (dom::DOM | eff) Unit

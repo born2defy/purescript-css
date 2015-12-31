@@ -1,25 +1,14 @@
 module Test.Main where
 
-import Prelude
+import Prelude hiding (top, bottom)
 import Control.Monad
 import Control.Monad.Eff
 import Control.Monad.Eff.Exception
 import Control.Monad.Eff.Console hiding (error)
-import CSS.Border
-import CSS.Color
-import CSS.Display
-import CSS.Elements
-import CSS.Font
-import CSS.Render
-import CSS.Selector
-import CSS.Size
-import CSS.String
-import CSS.Stylesheet
 import Data.Maybe
-import Data.These
 import DOM
 import Node.FS
-
+import CSS.CSSInLine
 import Test.CompileTest as CompileTest
 
 

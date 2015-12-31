@@ -4,32 +4,13 @@ import    Prelude               hiding (top, bottom)
 import    Control.Monad.Eff
 import    Control.Monad.Eff.Exception
 import    Control.Monad.Eff.Console hiding (error)
-import    CSS.Animation
-import    CSS.Background
-import    CSS.Border
-import    CSS.Color
-import    CSS.Display
-import    CSS.Elements
-import    CSS.Font
-import    CSS.FontFace
-import    CSS.Geometry
-import    CSS.Gradient
-import    CSS.Pseudo
-import    CSS.Selector
-import    CSS.Size
-import    CSS.String
-import    CSS.Stylesheet
-import    CSS.Text
-import    CSS.Time
-import    CSS.Transform
-import    CSS.Transition
 import    CSS.Media       as M
 import    Data.Maybe
 import    Data.Tuple.Nested
 import    DOM
 import    Data.NonEmpty   as NEL
 import    Node.FS
-import    CSS.Compile     (renderAndCompile)
+import    CSS.CSSCompiled
 
 
 main :: forall eff. Eff (dom::DOM, fs::FS, err::EXCEPTION, console::CONSOLE | eff) Unit

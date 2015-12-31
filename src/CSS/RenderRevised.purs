@@ -1,4 +1,4 @@
-module CSS.Render where
+module CSS.RenderRevised where
 
 import Prelude
 

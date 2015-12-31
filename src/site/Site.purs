@@ -1,4 +1,4 @@
-module Site.Site where
+module Site where
 
 import Prelude
 import Control.Monad.Eff

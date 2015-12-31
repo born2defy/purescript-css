@@ -2,21 +2,22 @@ module CSS.Render where
 
 import Prelude
 
-import Data.Array ((:), drop, sort, uncons, mapMaybe, replicate, take, length)
+import Data.Array ((:), drop, sort, uncons, mapMaybe)
 import Data.Either (Either(..), either)
-import Data.Foldable (foldMap, intercalate, mconcat, fold)
+import Data.Foldable (foldMap, intercalate, mconcat)
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.Monoid (Monoid, mempty)
 import Data.NonEmpty (NonEmpty(..), (:|), foldl1, oneOf)
 import Data.These (These(..), theseLeft, theseRight)
 import Data.Tuple (Tuple(..), lookup, uncurry)
 
-import Data.String (split)
-
 import CSS.Property
 import CSS.Selector
 import CSS.String
 import CSS.Stylesheet
+
+renderStyleSheet :: CSS -> String
+renderStyleSheet = fromMaybe "" <<< renderedSheet <<< render
 
 newtype Inline = Inline String
 
@@ -52,25 +53,14 @@ render :: forall a. StyleM a -> Rendered
 render = rules [] <<< runS
 
 kframe :: Keyframes -> Rendered
--- kframe (Keyframes ident xs) = Just <<< That <<< Sheet $ "@-webkit-keyframes " <> ident <> " { " <> intercalate " " (uncurry frame <$> xs) <> " }\n"
-kframe (Keyframes ident xs) = Just <<< That <<< Sheet $ "@-webkit-keyframes " <> ident <> " {\n" <> mconcat (uncurry frame <$> xs) <> "}\n\n"
+kframe (Keyframes ident xs) = Just <<< That <<< Sheet $ "@-webkit-keyframes " <> ident <> " { " <> intercalate " " (uncurry frame <$> xs) <> " }\n"
 
 frame :: Number -> Array Rule -> String
--- frame p rs = show p <> "% " <> "{ " <> x <> " }"
-frame p rs = "  " <> show p <> "% " <> "{\n    " <> x <> "  }\n"
+frame p rs = show p <> "% " <> "{ " <> x <> " }"
   where x = fromMaybe "" <<< renderedInline $ rules [] rs
 
 query' :: MediaQuery -> Array App -> Array Rule -> Rendered
--- query' q sel rs = Just <<< That <<< Sheet $ mediaQuery q <> " { " <> fromMaybe "" (renderedSheet $ rules sel rs) <> " }\n"
--- query' q sel rs = Just <<< That <<< Sheet $ fromMaybe "" (renderedSheet $ rules sel rs)          --mediaQuery q <> " {\n  " <> fromMaybe "" (renderedSheet $ rules sel rs) <> "}"
-query' q sel rs = Just <<< That <<< Sheet $ mediaQuery q <> " {\n  " <> indentedRules <> "\n}"
-  where
-  indentedRules = indent 2 "\n" (fromMaybe "" (renderedSheet $ rules sel rs))
-
-indent :: Int -> String -> String -> String
--- indent spaces separator = split separator >>> intercalate separator' >>> stripSuffix (separator' <> separator') >>> maybe "" (<> separator)
-indent spaces separator = split separator >>> (\xs -> take (length xs - 2) xs) >>> intercalate separator'
-  where separator' = separator <> (fold $ replicate spaces " ")
+query' q sel rs = Just <<< That <<< Sheet $ mediaQuery q <> " { " <> fromMaybe "" (renderedSheet $ rules sel rs) <> " }\n"
 
 mediaQuery :: MediaQuery -> String
 mediaQuery (MediaQuery no ty fs) = "@media " <> mediaType ty <> foldl1 (<>) ((" and " <>) <<< feature <$> fs)
@@ -82,8 +72,7 @@ feature :: Feature -> String
 feature (Feature k mv) = maybe k (\(Value v) -> "(" <> k <> ": " <> plain v <> ")") mv
 
 face :: Array Rule -> Rendered
--- face rs = Just <<< That <<< Sheet $ "@font-face { " <> fromMaybe "" (renderedInline $ rules [] rs) <> " }\n"
-face rs = Just <<< That <<< Sheet $ "@font-face {\n  " <> fromMaybe "" (renderedInline $ rules [] rs) <> "}\n\n"
+face rs = Just <<< That <<< Sheet $ "@font-face { " <> fromMaybe "" (renderedInline $ rules [] rs) <> " }\n"
 
 rules :: Array App -> Array Rule -> Rendered
 rules sel rs = topRules <> importRules <> keyframeRules <> faceRules <> nestedSheets <> queryRules
@@ -114,8 +103,8 @@ rule' :: forall a. Array App -> Array (Tuple (Key a) Value) -> Rendered
 rule' sel props = maybe q o $ nel sel
   where p = props >>= collect
         q = (This <<< Inline <<< properties <<< oneOf) <$> nel p
-        o sel' = Just <<< That <<< Sheet $ mconcat [selector (merger sel'), " {\n  ", properties p, "}\n"]
-        -- o sel' = Just <<< That <<< Sheet $ intercalate " " [selector (merger sel'), "{", properties p, "}"]
+        o sel' = Just <<< That <<< Sheet $ intercalate " " [selector (merger sel'), "{", properties p, "}"]
+
 selector :: Selector -> String
 selector = intercalate ", " <<< selector'
 
@@ -145,8 +134,7 @@ collect' (Prefixed ks) (Prefixed vs) = (\(Tuple p k) -> maybe (Left (p <> k)) (R
 
 properties :: Array (Either String (Tuple String String)) -> String
 properties xs = intercalate "; " $  sheetRules <$> xs
-  -- where sheetRules = either (\_ -> mempty) (\(Tuple k v) -> mconcat [k, ": ", v])
-  where sheetRules = either (\_ -> mempty) (\(Tuple k v) -> mconcat [k, ": ", v, "\n"])
+  where sheetRules = either (\_ -> mempty) (\(Tuple k v) -> mconcat [k, ": ", v])
 
 merger :: NonEmpty Array App -> Selector
 merger (NonEmpty x xs) =

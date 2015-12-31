@@ -1,37 +1,39 @@
-module Site.Site where
+module Main where
 
-import Prelude hiding (top, bottom)
-import Control.Monad.Eff
-import CSS.Animation
-import CSS.Background
-import CSS.Border
-import CSS.Color
-import CSS.Display
-import CSS.Elements
-import CSS.Font
-import CSS.FontFace
-import CSS.Geometry
-import CSS.Gradient
-import CSS.Media            as M
-import CSS.Pseudo
-import CSS.Render
-import CSS.Selector
-import CSS.Size
-import CSS.String
-import CSS.Stylesheet
-import CSS.Text
-import CSS.Time
-import CSS.Transform
-import CSS.Transition
-import Data.Maybe
-import Data.Tuple.Nested
-import DOM
-import Data.NonEmpty        as NEL
+import    Prelude               hiding (top, bottom)
+import    Control.Monad.Eff
+import    CSS.Animation
+import    CSS.Background
+import    CSS.Border
+import    CSS.Color
+import    CSS.Display
+import    CSS.Elements
+import    CSS.Font
+import    CSS.FontFace
+import    CSS.Geometry
+import    CSS.Gradient
+import    CSS.Pseudo
+import    CSS.Selector
+import    CSS.Size
+import    CSS.String
+import    CSS.Stylesheet
+import    CSS.Text
+import    CSS.Time
+import    CSS.Transform
+import    CSS.Transition
+import    CSS.Media       as M
+import    Data.Maybe
+import    Data.Tuple.Nested
+import    DOM
+import    Data.NonEmpty   as NEL
 
-foreign import addStyleSheet :: forall eff. String -> Eff (dom::DOM | eff) Unit
-foreign import titleWidth    :: forall eff. Eff (dom::DOM | eff) Number
-foreign import titleHeight   :: forall eff. Eff (dom::DOM | eff) Number
-foreign import titleStyle    :: forall eff. String -> Eff (dom::DOM | eff) Unit
+
+import    CSS.Compile     (renderAndInsertStyle)
+
+
+main :: forall eff. Eff (dom::DOM | eff) Unit
+main = do
+  renderAndInsertStyle style
 
 blue1 :: Color
 blue1 = rgb 51 136 204
@@ -59,7 +61,7 @@ style = do
 
   query M.screen (NEL.singleton <<< M.maxWidth $ px 768.0) $
     h1 ? do
-      fontSize (em 2.0)
+        fontSize (em 2.0)
 
   html ? height (pct 100.0)
   body ? do
@@ -83,16 +85,3 @@ style = do
     sym borderRadius (em 0.25)
   (h1 ## hover) ?
     animation (fromString "buzz-button") (sec 0.15) linear (sec 0.0) infinite normalAnimationDirection forwards
-
-center :: Number -> Number -> CSS
-center width height = do
-  marginLeft (px $ -width / 2.0)
-  marginTop (px $ -height / 2.0)
-
-
-main :: Eff (dom :: DOM) Unit
-main = do
-  addStyleSheet <<< fromMaybe "" <<< renderedSheet $ render style
-  width <- titleWidth
-  height <- titleHeight
-  titleStyle <<< fromMaybe "" <<< renderedInline <<< render $ center width height
